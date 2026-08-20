@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+```markdown
+# 🤖 Visual AI Decision Flow Builder
 
-First, run the development server:
+An interactive, visual AI workflow automation system where each canvas node represents an AI decision step returning either **YES** or **NO**. Built with **React Flow** for frontend node editing and **Inngest** for resilient asynchronous backend execution powered by **OpenAI**.
 
+---
+
+## 🚀 Features
+
+* **Interactive Flow Canvas:** Drag-and-drop node placement, dynamic branching connection (YES/NO edges), and custom prompt configurations via `@xyflow/react`.
+* **Inngest Step Execution Engine:** Reliability-focused backend engine handling step-by-step traversal, node state persistence, and automatic retries.
+* **Deterministic AI Evaluation:** Leverages OpenAI (`gpt-4o-mini`) configured for binary YES/NO decision outputs.
+* **Execution Logs Panel:** Real-time log inspection panel for viewing step outputs and node decision histories.
+* **JSON Import/Export:** Save canvas workflow structures locally or import pre-configured decision trees.
+
+---
+
+## 🛠️ Tech Stack
+
+* **Frontend:** Next.js 14+ (App Router), React, Tailwind CSS, Lucide Icons
+* **Workflow Canvas:** React Flow (`@xyflow/react`)
+* **Execution Engine:** Inngest SDK
+* **AI Provider:** OpenAI API (`gpt-4o-mini`)
+* **Language:** TypeScript
+
+---
+
+## 📦 Getting Started
+
+### 1. Clone the Repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone [https://github.com/yzkielr/AI-Workflow-System.git](https://github.com/yzkielr/AI-Workflow-System.git)
+cd ai-workflow-builder
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install Dependencies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
 
-## Learn More
+### 3. Environment Setup
 
-To learn more about Next.js, take a look at the following resources:
+Create a `.env.local` file in the root directory:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+INNGEST_EVENT_KEY=local-dev-key
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
 
-## Deploy on Vercel
+### 4. Run Development Servers
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Open two terminal windows:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* **Terminal 1 (Next.js Application):**
+```bash
+npm run dev
+
+```
+
+
+* **Terminal 2 (Inngest Dev Server):**
+```bash
+npx inngest-cli@latest dev
+
+```
+
+
+
+Visit `http://localhost:3000` to open the application and `http://localhost:8288` to view the Inngest Dashboard.
+
+---
+
+## 🔄 How It Works
+
+1. **Build the Graph:** Create decision nodes on the canvas and define prompt conditions (e.g., *"Is this a technical support request?"*).
+2. **Connect Branches:** Draw green connections from the **YES** handle or red connections from the **NO** handle to target nodes.
+3. **Trigger Workflow:** Input a test payload and click **Run Workflow**.
+4. **Execution Loop:** Inngest triggers the `workflow/run` event, evaluates each prompt via OpenAI sequentially, and follows the corresponding YES/NO edge until the workflow finishes.
+
+```
+
+```
