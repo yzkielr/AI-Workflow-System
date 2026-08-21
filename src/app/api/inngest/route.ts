@@ -5,7 +5,5 @@ import { executeWorkflow } from "@/inngest/workflow";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [
-    executeWorkflow, // Regristrasi fungsi workflow di sini
-  ],
+  functions: [executeWorkflow],
 });
