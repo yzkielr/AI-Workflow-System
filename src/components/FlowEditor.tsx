@@ -1,7 +1,7 @@
 // src/components/FlowEditor.tsx
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -18,7 +18,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import DecisionNode, { DecisionNodeType } from './nodes/DecisionNode';
+import DecisionNode from './nodes/DecisionNode';
 import LogsPanel, { LogItem } from './LogsPanel';
 import { Plus, Play, Loader2, Download, Upload, Terminal } from 'lucide-react';
 
@@ -26,7 +26,8 @@ const nodeTypes = {
   decisionNode: DecisionNode,
 };
 
-const initialNodes: DecisionNodeType[] = [
+// PERBAIKAN: Gunakan tipe Node[] standar agar tidak error TypeScript
+const initialNodes: Node[] = [
   {
     id: 'node-1',
     type: 'decisionNode',
@@ -45,7 +46,6 @@ export default function FlowEditor() {
   const [isRunning, setIsRunning] = useState(false);
   const [runStatus, setRunStatus] = useState<string | null>(null);
 
-  // State untuk Phase 4 Polish Features
   const [logs, setLogs] = useState<LogItem[]>([]);
   const [showLogs, setShowLogs] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -63,6 +63,19 @@ export default function FlowEditor() {
       })
     );
   }, []);
+
+  // Hubungkan prompt handler ke seluruh node
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          onPromptChange: handlePromptChange,
+        },
+      }))
+    );
+  }, [handlePromptChange]);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -99,7 +112,8 @@ export default function FlowEditor() {
 
   const addNode = () => {
     const newNodeId = `node-${nodes.length + 1}`;
-    const newNode: DecisionNodeType = {
+    // PERBAIKAN: Gunakan tipe Node standar
+    const newNode: Node = {
       id: newNodeId,
       type: 'decisionNode',
       position: { x: 100 + nodes.length * 40, y: 100 + nodes.length * 40 },
@@ -112,7 +126,6 @@ export default function FlowEditor() {
     setNodes((nds) => [...nds, newNode]);
   };
 
-  // FEATURE 1: Export Workflow to JSON
   const handleExportJSON = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ nodes, edges }, null, 2));
     const downloadAnchor = document.createElement('a');
@@ -123,7 +136,6 @@ export default function FlowEditor() {
     downloadAnchor.remove();
   };
 
-  // FEATURE 1: Import Workflow from JSON
   const handleImportJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -133,7 +145,14 @@ export default function FlowEditor() {
       try {
         const json = JSON.parse(event.target?.result as string);
         if (json.nodes && json.edges) {
-          setNodes(json.nodes);
+          const mappedNodes = json.nodes.map((node: any) => ({
+            ...node,
+            data: {
+              ...node.data,
+              onPromptChange: handlePromptChange,
+            },
+          }));
+          setNodes(mappedNodes);
           setEdges(json.edges);
           setRunStatus("Workflow JSON berhasil dimuat!");
         }
@@ -144,7 +163,6 @@ export default function FlowEditor() {
     reader.readAsText(file);
   };
 
-  // FEATURE 2 & 3: Run Workflow & Highlight Visual State
   const handleRunWorkflow = async () => {
     setIsRunning(true);
     setRunStatus('Mengirim event ke Inngest...');
@@ -187,6 +205,7 @@ export default function FlowEditor() {
             >
               <Plus className="w-3.5 h-3.5" /> Node
             </button>
+
             <button
               onClick={handleExportJSON}
               className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition-all"
@@ -257,10 +276,8 @@ export default function FlowEditor() {
         )}
       </div>
 
-      {/* Side Logs Panel */}
       <LogsPanel logs={logs} isOpen={showLogs} onClose={() => setShowLogs(false)} />
 
-      {/* Interactive React Flow Canvas */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
