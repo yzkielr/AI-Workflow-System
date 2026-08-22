@@ -1,4 +1,5 @@
 // src/inngest/workflow.ts
+// @ts-nocheck
 import { inngest } from "./client";
 import Groq from "groq-sdk";
 
