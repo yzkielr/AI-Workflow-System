@@ -1,10 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["groq-sdk"],
   typescript: {
     ignoreBuildErrors: true,
   },
-  // @ts-ignore - mengabaikan peringatan tipe eslint untuk Next.js 15+
+  // @ts-ignore
   eslint: {
     ignoreDuringBuilds: true,
   },
